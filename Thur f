@@ -8,7 +8,7 @@ output: html_document
 
 
 ```{r}
-install.packages("psych")
+
 library(psych)
 library(cubature)
 K <- 2
@@ -20,9 +20,13 @@ b <- 0.1
 c <- 1
 d <- 1
 e <- 1
-q <- qnorm(0.975)
-
+q <- qnorm(0.975)   #....1.96
+n1 <- E/2
+n2 <- E/2
+x<-c(1,2,3,4,5)
 w<-c(1,2)
+
+wvector <- function(w) {return(kronecker(rep(1,K),c(w[1]*rep(1,n1*L),w[2]*rep(1,n2*L))))}
 N <- K*E*L
 
 z1 <- kronecker(rep(1,K), kronecker(diag(1,E),rep(1,L)))
@@ -36,7 +40,7 @@ Vinv<-function(x) {return(solve(x[3] * z1 %*% t(z1)+x[4] * z2 %*% t(z2)+x[5] * z
 #tr(Vinv(c(1,1,1,1,1)))
 
 
-A <- function(x,w) {return(t(cbind(-x[2]*rep(1,N),rep(c(w[1],w[1],w[2],w[2]),2)-x[1]*rep(1,N))) %*% Vinv(x) %*% (cbind(-x[2]*rep(1,N),rep(c(w[1],w[1],w[2],w[2]),2)-x[1]*rep(1,N))))}
+A <- function(x,w) {return(t(cbind(-x[2]*rep(1,N),wvector(w)-x[1]*rep(1,N))) %*% Vinv(x) %*% (cbind(-x[2]*rep(1,N),wvector(w)-x[1]*rep(1,N))))}
 
 #A(x,w)
 b11 <- function(x) {return((1/2)*(tr(Vinv(x) %*% z1 %*% t(z1) %*% Vinv(x) %*% z1 %*% t(z1))))}
@@ -66,7 +70,7 @@ w[2]<-plan[2]
 
 h1<-function(x){t(c(1,exp(log10(c+d+e)/q)/b^2,exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e)))) %*% solve(Info(x,w)) %*% c(1,exp(log10(c+d+e)/q)/b^2,exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e))) * allfive(x)}
 
-qq<-adaptIntegrate(h1,c(1.1,2,3,4,5),c(3,4,5,6,7))
+qq<-adaptIntegrate(h1,c(1.1,2,3,4,5),c(3,4,5,6,7),tol = 1)
 return(qq)
 }
 
