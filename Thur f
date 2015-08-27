@@ -1,0 +1,74 @@
+---
+title: "Untitled"
+author: "Jiyi Jiang"
+date: "2015年8月27日"
+output: html_document
+---
+
+
+
+```{r}
+install.packages("psych")
+library(psych)
+library(cubature)
+K <- 2
+E <- 2
+L <- 2
+
+a <- 0.1
+b <- 0.1
+c <- 1
+d <- 1
+e <- 1
+q <- qnorm(0.975)
+
+w<-c(1,2)
+N <- K*E*L
+
+z1 <- kronecker(rep(1,K), kronecker(diag(1,E),rep(1,L)))
+z2 <- kronecker(diag(1,K),rep(1,E*L))
+z3 <- diag(1, E*K*L)
+
+Vinv<-function(x) {return(solve(x[3] * z1 %*% t(z1)+x[4] * z2 %*% t(z2)+x[5] * z3 %*% t(z3)))}
+
+#Vinv(c(1,1,1,1,1))
+#library(psych)
+#tr(Vinv(c(1,1,1,1,1)))
+
+
+A <- function(x,w) {return(t(cbind(-x[2]*rep(1,N),rep(c(w[1],w[1],w[2],w[2]),2)-x[1]*rep(1,N))) %*% Vinv(x) %*% (cbind(-x[2]*rep(1,N),rep(c(w[1],w[1],w[2],w[2]),2)-x[1]*rep(1,N))))}
+
+#A(x,w)
+b11 <- function(x) {return((1/2)*(tr(Vinv(x) %*% z1 %*% t(z1) %*% Vinv(x) %*% z1 %*% t(z1))))}
+b12 <- function(x) {return((1/2)*(tr(Vinv(x) %*% z1 %*% t(z1) %*% Vinv(x) %*% z2 %*% t(z2))))}
+b13 <- function(x) {return((1/2)*(tr(Vinv(x) %*% z1 %*% t(z1) %*% Vinv(x) %*% z3 %*% t(z3))))}
+
+b21 <- function(x) {return((1/2)*(tr(Vinv(x) %*% z2 %*% t(z2) %*% Vinv(x) %*% z1 %*% t(z1))))}
+b22 <- function(x) {return((1/2)*(tr(Vinv(x) %*% z2 %*% t(z2) %*% Vinv(x) %*% z2 %*% t(z2))))}
+b23 <- function(x) {return((1/2)*(tr(Vinv(x) %*% z2 %*% t(z2) %*% Vinv(x) %*% z3 %*% t(z3))))}
+
+b31 <- function(x) {return((1/2)*(tr(Vinv(x) %*% z3 %*% t(z3) %*% Vinv(x) %*% z1 %*% t(z1))))}
+b32 <- function(x) {return((1/2)*(tr(Vinv(x) %*% z3 %*% t(z3) %*% Vinv(x) %*% z2 %*% t(z2))))}
+b33 <- function(x) {return((1/2)*(tr(Vinv(x) %*% z3 %*% t(z3) %*% Vinv(x) %*% z3 %*% t(z3))))}
+
+B <- function(x) {return(matrix(c(b11(x),b21(x),b31(x),b12(x),b22(x),b32(x),b13(x),b23(x),b33(x)), nrow=3,ncol=3 )) }
+
+
+Info<-function(x,w) {matrix(c(A(x,w)[1,1],A(x,w)[1,2],0,0,0,A(x,w)[2,1],A(x,w)[2,2],0,0,0,0,0,B(x)[1,1],B(x)[1,2],B(x)[1,3],0,0,B(x)[2,1],B(x)[2,2],B(x)[2,3],0,0,B(x)[3,1],B(x)[3,2],B(x)[3,3]),nrow=5,ncol=5,byrow = TRUE)}
+Info(c(1,2,3,4,5),c(1,2))
+
+
+frtest <- function(plan) {  
+w[1]<-plan[1]
+w[2]<-plan[2]
+
+h1<-function(x){t(c(1,exp(log10(c+d+e)/q)/b^2,exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e)))) %*% solve(Info(x,w)) %*% c(1,exp(log10(c+d+e)/q)/b^2,exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e)))}
+
+qq<-adaptIntegrate(h1,c(1.1,2,3,4,5),c(3,4,5,6,7))
+return(qq)
+}
+
+frtest(c(1,2))
+
+```
+
