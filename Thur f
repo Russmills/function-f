@@ -68,7 +68,7 @@ frtest <- function(plan) {
 w[1]<-plan[1]
 w[2]<-plan[2]
 
-h1<-function(x){t(c(1,exp(log10(c+d+e)/q)/b^2,exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e)))) %*% solve(Info(x,w)) %*% c(1,exp(log10(c+d+e)/q)/b^2,exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e)),exp(log10(c+d+e)/q)/(b*q*(c+d+e))) * allfive(x)}
+h1<-function(x){t(c(1,-q*sqrt(c+d+e)/b^2,q/(2*b*sqrt(c+d+e)),q/(2*b*sqrt(c+d+e)),q/(2*b*sqrt(c+d+e)))) %*% solve(Info(x,w)) %*% (c(1,-q*sqrt(c+d+e)/b^2,q/(2*b*sqrt(c+d+e)),q/(2*b*sqrt(c+d+e)),q/(2*b*sqrt(c+d+e)))) * allfive(x)}
 
 qq<-adaptIntegrate(h1,c(1.1,2,3,4,5),c(3,4,5,6,7),tol = 1)
 return(qq)
