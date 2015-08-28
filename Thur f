@@ -12,7 +12,7 @@ output: html_document
 library(psych)
 library(cubature)
 K <- 2
-E <- 2
+
 L <- 2
 
 a <- 0.1
@@ -21,17 +21,41 @@ c <- 1
 d <- 1
 e <- 1
 q <- qnorm(0.975)   #....1.96
-n1 <- E/2
-n2 <- E/2
 
 
 x<-c(1,2,3,4,5)
+
+
+#wvector <- function(w) {return(kronecker(rep(1,K),c(w[1]*rep(1,n1*L),w[2]*rep(1,n2*L))))}
+#create w vector
+D<-2
 w<-c(1,2)
+n<-c(3,5)
+E<-sum(n)
 
-wvector <- function(w) {return(kronecker(rep(1,K),c(w[1]*rep(1,n1*L),w[2]*rep(1,n2*L))))}
 
-wvector <- function(w){return(c(rep(w[1:D],each = nd*2)))
+M<-matrix(NA,nrow = max(n)*L, ncol = D)
+
+
+#length(x)<-n
+#length(y)<-n
+#N<-cbind(x,y)
+
+
+
+for (j in 1:D){
+  for (i in 1:(n[j]*L)){
+    M[i,j]<-w[j]
+  }
 }
+
+wvec<-as.vector(M)
+wvec<-na.omit(wvec)
+
+
+wvector <- function(w) {return(kronecker(rep(1,K),wvec))}
+
+
 
 
 N <- K*E*L
